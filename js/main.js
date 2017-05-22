@@ -1,5 +1,23 @@
 'use strict';
 //Calling
+// STUN - get IP of your computer
+// TURN  - relay servers
+// Both webRTC Clients on same Page
+/**
+Process - 
+1.Peer A create own RTC object then getUserMedia then sequential Data send Peer B
+2.Peer B accept Data and add it to addIceCandidate
+
+Peer A sends OfferRequest with local SDP to peer B
+Peer B accepts offerRequest and setRemoteSDp
+Then 
+Peer B send answerrequest with Remote SDP send by Peer A
+Then
+Peer B setLocal SDP
+and also send Local SDP to Peer A
+Peer A set it to Remote SDP.
+
+**/
 var startButton = document.getElementById('startCallButton');
 var callButton = document.getElementById('callButton');
 var hangupButton = document.getElementById('hangupButton');
@@ -13,21 +31,26 @@ var startTime;
 var localVideo = document.getElementById('localVideo');
 var remoteVideo = document.getElementById('remoteVideo');
 
+
+// Setting Up Local Video Element Size : 
 localVideo.addEventListener('loadedmetadata', function() {
   trace('Local video videoWidth: ' + this.videoWidth +
     'px,  videoHeight: ' + this.videoHeight + 'px');
 });
-
+// Setting up remote video size : 
 remoteVideo.addEventListener('loadedmetadata', function() {
   trace('Remote video videoWidth: ' + this.videoWidth +
     'px,  videoHeight: ' + this.videoHeight + 'px');
 });
 
+
+// onresize Check StartTime intialized in Call Function : 
 remoteVideo.onresize = function() {
   trace('Remote video size changed to ' +
     remoteVideo.videoWidth + 'x' + remoteVideo.videoHeight);
   // We'll use the first onresize callback as an indication that video has started
   // playing out.
+  alert("StartTime"+startTime);
   if (startTime) {
     var elapsedTime = window.performance.now() - startTime;
     trace('Setup time: ' + elapsedTime.toFixed(3) + 'ms');
@@ -37,7 +60,11 @@ remoteVideo.onresize = function() {
 
 var localStream;
 var pc1;
+// pc1 -peer client  1 
+// pc2 - peer client 2 
+
 var pc2;
+// Offer Options : 
 var offerOptions = {
   offerToReceiveAudio: 1,
   offerToReceiveVideo: 1
@@ -52,16 +79,21 @@ function getOtherPc(pc) {
 }
 
 function gotStream(stream) {
-  trace('Received local stream');
+	
+  trace('Received local stream from navigator object in Start Function');
   localVideo.srcObject = stream;
   // Add localStream to global scope so it's accessible from the browser console
   window.localStream = localStream = stream;
   callButton.disabled = false;
+  // Activated The Call Button
 }
 
+// First Clicking Start
 function start() {
   trace('Requesting local stream');
   startButton.disabled = true;
+	//Start Disabled Until Hang Up
+  // If received Media Devices then call the gotstream function : 
   navigator.mediaDevices.getUserMedia({
     audio: true,
     video: true
@@ -72,14 +104,22 @@ function start() {
   });
 }
 
-function call() {
+function call() 
+{
   callButton.disabled = true;
   hangupButton.disabled = false;
   trace('Starting call');
+  // Window.performance for website performance
+ //performance.now() : 
+//Returns a DOMHighResTimeStamp representing the number of milliseconds elapsed since a reference instant.
   startTime = window.performance.now();
+  alert("startTime in Call Function : "+startTime);
   var videoTracks = localStream.getVideoTracks();
+  alert("VideoTracks  :"+videoTracks[0].label);
   var audioTracks = localStream.getAudioTracks();
-  if (videoTracks.length > 0) {
+  
+  if (videoTracks.length > 0) 
+  {
     trace('Using video device: ' + videoTracks[0].label);
   }
   if (audioTracks.length > 0) {
@@ -185,6 +225,7 @@ function onCreateAnswerSuccess(desc) {
 }
 
 function onIceCandidate(pc, event) {
+	//alert("onIce Candiate event.candiate  :"+event.candiate); returned undefined
   if (event.candidate) {
     getOtherPc(pc).addIceCandidate(
       new RTCIceCandidate(event.candidate)
@@ -211,6 +252,10 @@ function onAddIceCandidateError(pc, error) {
 
 function onIceStateChange(pc, event) {
   if (pc) {
+	  //pc is pc1 or pc2
+	  //alert("OnIceStateChange");
+	  //alert(getName(pc)+ ' ICE state: ' + pc.iceConnectionState);
+	  
     trace(getName(pc) + ' ICE state: ' + pc.iceConnectionState);
     console.log('ICE state change event: ', event);
   }
@@ -225,6 +270,7 @@ function hangup() {
   // pc1 and pc2 null
   hangupButton.disabled = true;
   callButton.disabled = false;
+  startButton.disabled = false;
 }
 
 
