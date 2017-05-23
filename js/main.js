@@ -1,4 +1,5 @@
 'use strict';
+//RTCPeerConnection - stream audio and video between users
 //Calling
 // STUN - get IP of your computer
 // TURN  - relay servers
@@ -7,7 +8,7 @@
 Process - 
 1.Peer A create own RTC object then getUserMedia then sequential Data send Peer B
 2.Peer B accept Data and add it to addIceCandidate
-
+ - stream audio and video between users
 Peer A sends OfferRequest with local SDP to peer B
 Peer B accepts offerRequest and setRemoteSDp
 Then 
