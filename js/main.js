@@ -184,7 +184,9 @@ function onCreateSessionDescriptionError(error) {
 }
 
 function onCreateOfferSuccess(desc) {
+	// -----------------------------------------IMPORTANT PICK CALL MECH HERE ----------------------------------------------------------------
 	alert("onSuccess : "+"Offer from pc1\n" + desc.sdp);
+	// SDP -session description protocol
   trace('Offer from pc1\n' + desc.sdp);
   trace('pc1 setLocalDescription start');
   pc1.setLocalDescription(desc).then(
