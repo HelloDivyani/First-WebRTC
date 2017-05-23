@@ -46,6 +46,7 @@ remoteVideo.addEventListener('loadedmetadata', function() {
 
 // onresize Check StartTime intialized in Call Function : 
 remoteVideo.onresize = function() {
+	alert("onresize");
   trace('Remote video size changed to ' +
     remoteVideo.videoWidth + 'x' + remoteVideo.videoHeight);
   // We'll use the first onresize callback as an indication that video has started
@@ -70,16 +71,18 @@ var offerOptions = {
   offerToReceiveVideo: 1
 };
 
+// Return the name of the pc in parameter whether it is pc1 or pc2
 function getName(pc) {
   return (pc === pc1) ? 'pc1' : 'pc2';
 }
 
+// 	Return the name of the other peer connected if it is pc1 then return pc2
 function getOtherPc(pc) {
   return (pc === pc1) ? pc2 : pc1;
 }
 
-function gotStream(stream) {
-	
+function gotStream(stream)
+ {	
   trace('Received local stream from navigator object in Start Function');
   localVideo.srcObject = stream;
   // Add localStream to global scope so it's accessible from the browser console
@@ -113,9 +116,9 @@ function call()
  //performance.now() : 
 //Returns a DOMHighResTimeStamp representing the number of milliseconds elapsed since a reference instant.
   startTime = window.performance.now();
-  alert("startTime in Call Function : "+startTime);
+  //alert("startTime in Call Function : "+startTime);
   var videoTracks = localStream.getVideoTracks();
-  alert("VideoTracks  :"+videoTracks[0].label);
+  //alert("VideoTracks  :"+videoTracks[0].label);
   var audioTracks = localStream.getAudioTracks();
   
   if (videoTracks.length > 0) 
@@ -127,8 +130,13 @@ function call()
   }
   var servers = null;
   // Add pc1 to global scope so it's accessible from the browser console
-  window.pc1 = pc1 = new RTCPeerConnection(servers);
+  window.pc1 = pc1 = new RTCPeerConnection(servers); // RTCPeerConnection without servers
+  // server can be specified as STUN or TURN servers
+  // STUN - Session Traversal Utilities for NAT
+  // TURN - Traversal Using Relays around NAT
+  
   trace('Created local peer connection object pc1');
+  // Create RTCPeerConnection object
   pc1.onicecandidate = function(e) {
     onIceCandidate(pc1, e);
   };
@@ -138,6 +146,7 @@ function call()
   pc2.onicecandidate = function(e) {
     onIceCandidate(pc2, e);
   };
+  
   pc1.oniceconnectionstatechange = function(e) {
     onIceStateChange(pc1, e);
   };
@@ -242,6 +251,7 @@ function onIceCandidate(pc, event) {
 }
 
 function onAddIceCandidateSuccess(pc) {
+
   trace(getName(pc) + ' addIceCandidate success');
 }
 
@@ -273,7 +283,7 @@ function hangup() {
   startButton.disabled = false;
 }
 
-
+// dATA shown in ctrl+shift+I
 function trace(text) {
   if (text[text.length - 1] === '\n') {
     text = text.substring(0, text.length - 1);
