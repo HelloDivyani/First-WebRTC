@@ -46,12 +46,12 @@ remoteVideo.addEventListener('loadedmetadata', function() {
 
 // onresize Check StartTime intialized in Call Function : 
 remoteVideo.onresize = function() {
-	alert("onresize");
+	//alert("onresize");
   trace('Remote video size changed to ' +
     remoteVideo.videoWidth + 'x' + remoteVideo.videoHeight);
   // We'll use the first onresize callback as an indication that video has started
   // playing out.
-  alert("StartTime"+startTime);
+  //alert("StartTime"+startTime);
   if (startTime) {
     var elapsedTime = window.performance.now() - startTime;
     trace('Setup time: ' + elapsedTime.toFixed(3) + 'ms');
@@ -61,10 +61,11 @@ remoteVideo.onresize = function() {
 
 var localStream;
 var pc1;
-// pc1 -peer client  1 
-// pc2 - peer client 2 
+// pc1 -peer client  1 - RTCPeerConnection Object 
+// pc2 - peer client 2  
 
 var pc2;
+
 // Offer Options : 
 var offerOptions = {
   offerToReceiveAudio: 1,
@@ -73,6 +74,7 @@ var offerOptions = {
 
 // Return the name of the pc in parameter whether it is pc1 or pc2
 function getName(pc) {
+//alert("pc1 : "+pc1);
   return (pc === pc1) ? 'pc1' : 'pc2';
 }
 
@@ -83,8 +85,10 @@ function getOtherPc(pc) {
 
 function gotStream(stream)
  {	
-  trace('Received local stream from navigator object in Start Function');
-  localVideo.srcObject = stream;
+ //alert("stream : "+stream);
+ // stream : object Media Stream
+ trace('Received local stream from navigator object in Start Function');
+ localVideo.srcObject = stream;
   // Add localStream to global scope so it's accessible from the browser console
   window.localStream = localStream = stream;
   callButton.disabled = false;
@@ -93,6 +97,7 @@ function gotStream(stream)
 
 // First Clicking Start
 function start() {
+	// Just getting Video Using getUserMedia of Navigator Object
   trace('Requesting local stream');
   startButton.disabled = true;
 	//Start Disabled Until Hang Up
@@ -109,6 +114,8 @@ function start() {
 
 function call() 
 {
+	//pc1 is undefined
+	//alert("pc1 : "+pc1);
   callButton.disabled = true;
   hangupButton.disabled = false;
   trace('Starting call');
@@ -130,15 +137,19 @@ function call()
   }
   var servers = null;
   // Add pc1 to global scope so it's accessible from the browser console
-  window.pc1 = pc1 = new RTCPeerConnection(servers); // RTCPeerConnection without servers
+  window.pc1 = pc1 = new RTCPeerConnection(servers);
+// Assigning the pc1 as RTC PEER OBJECT
+  // RTCPeerConnection without servers
   // server can be specified as STUN or TURN servers
   // STUN - Session Traversal Utilities for NAT
   // TURN - Traversal Using Relays around NAT
-  
+  // NAT  - Network Address Translation
   trace('Created local peer connection object pc1');
   // Create RTCPeerConnection object
+  //ICE - Interactive Connectivity Establishment
   pc1.onicecandidate = function(e) {
     onIceCandidate(pc1, e);
+	// Function Call
   };
   // Add pc2 to global scope so it's accessible from the browser console
   window.pc2 = pc2 = new RTCPeerConnection(servers);
@@ -172,6 +183,7 @@ function onCreateSessionDescriptionError(error) {
 }
 
 function onCreateOfferSuccess(desc) {
+	alert("onSuccess : "+"Offer from pc1\n" + desc.sdp);
   trace('Offer from pc1\n' + desc.sdp);
   trace('pc1 setLocalDescription start');
   pc1.setLocalDescription(desc).then(
@@ -234,6 +246,7 @@ function onCreateAnswerSuccess(desc) {
 }
 
 function onIceCandidate(pc, event) {
+	//Adding the remote peer client using addIceCandiate on ICE framework
 	//alert("onIce Candiate event.candiate  :"+event.candiate); returned undefined
   if (event.candidate) {
     getOtherPc(pc).addIceCandidate(
@@ -246,6 +259,8 @@ function onIceCandidate(pc, event) {
         onAddIceCandidateError(pc, err);
       }
     );
+	//event.candiate sdp
+	//alert("onIceCandiate : "+getName(pc) + ' ICE candidate: \n' + event.candidate.candidate);
     trace(getName(pc) + ' ICE candidate: \n' + event.candidate.candidate);
   }
 }
@@ -263,7 +278,7 @@ function onAddIceCandidateError(pc, error) {
 function onIceStateChange(pc, event) {
   if (pc) {
 	  //pc is pc1 or pc2
-	  //alert("OnIceStateChange");
+	  //alert("OnIceStateChange"); checking connected
 	  //alert(getName(pc)+ ' ICE state: ' + pc.iceConnectionState);
 	  
     trace(getName(pc) + ' ICE state: ' + pc.iceConnectionState);
